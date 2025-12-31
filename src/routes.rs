@@ -1,3 +1,4 @@
+// --- 外部依赖模块：导入构建路由所需的基础框架和中间件组件 ---
 use axum::{
     middleware,
     routing::{get, post},
@@ -9,6 +10,7 @@ use tower_http::{
 };
 use tracing::Level;
 
+// --- 内部模块：导入应用程序自定义的处理函数、状态管理和中间件 ---
 // 引入自定义中间件模块，重命名为 app_middleware 以避免与 axum::middleware 命名冲突。
 // 这是 Rust 模块系统的常见做法，确保代码清晰可读。
 use crate::{handlers, state::AppState, middleware as app_middleware};
@@ -24,22 +26,38 @@ use crate::{handlers, state::AppState, middleware as app_middleware};
 /// # 中间件设计
 /// - 用户路由：应用基础鉴权中间件（检查令牌黑名单）。
 /// - 管理员路由：应用两层中间件链（从外到内：黑名单检查 → 管理员权限验证）。
+///   - 执行顺序：Axum 中间件从下往上执行，最外层的中间件最先执行，最内层的最后执行。
+///   - 安全优势：黑名单检查在前，无效令牌不会进入权限验证，减少不必要的权限检查开销。
 /// - 全局中间件：请求日志记录和 CORS 支持。
+///   - 日志记录：使用 Tower HTTP 的 TraceLayer 记录请求和响应信息，便于监控和调试。
+///   - CORS 配置：使用 permissive() 策略允许所有跨域请求，适合开发和测试环境。
+///
+/// # 安全考虑
+/// 1. 权限分层：不同路由组应用不同级别的中间件保护，实现最小权限原则。
+/// 2. 令牌黑名单：登出的令牌会被加入 Redis 黑名单，在剩余有效期内无法使用。
+/// 3. 中间件顺序：管理员路由中黑名单检查在权限验证之前，防止无效令牌触发权限验证逻辑。
+/// 4. 公开端点：认证路由没有中间件保护，确保登录、刷新等操作不受权限限制。
 ///
 /// # 参数
 /// - `state`: 应用程序状态，包含数据库连接、Redis 客户端和配置信息。
 ///
 /// # 返回值
-/// - 配置完整的 Axum Router，可用于启动 HTTP 服务器。
+/// - `Router`: 配置完整的 Axum Router，包含所有路由定义、中间件链和应用程序状态。
+///   - 路由结构：按照 `/auth`、`/users`、`/admin` 前缀组织，每个前缀对应不同的业务功能模块。
+///   - 中间件链：根据不同路由组应用相应的鉴权和权限验证中间件。
+///   - 全局功能：集成了请求日志记录和 CORS 跨域支持。
+///   - 应用程序状态：包含数据库连接、Redis 客户端和配置信息，可在处理函数中访问。
 pub fn create_router(state: AppState) -> Router {
-    // 认证模块路由：公开访问的认证端点，不需要任何中间件保护。
+    // --- 路由定义模块：按照业务功能划分不同的路由组，配置相应的中间件保护策略 ---
+
+    // --- 认证模块路由：公开访问的认证端点，不需要中间件保护 ---
     // 注意：用户注册功能已移至管理员路由，需要管理员权限才能访问，提高了系统安全性。
     let auth_routes = Router::new()
         .route("/login", post(handlers::auth::login))
         .route("/refresh", post(handlers::auth::refresh)) // 刷新令牌端点：虽然理论上也需要黑名单检查，但刷新处理器内部已包含完整的安全验证逻辑，因此这里不需要额外中间件。
         .route("/logout", post(handlers::auth::logout));
 
-    // 用户模块路由：需要登录才能访问的用户资料管理端点。
+    // --- 用户模块路由：需要登录访问的个人资料管理端点，应用基础鉴权中间件 ---
     let user_routes = Router::new()
         .route("/me", get(handlers::users::get_me))
         .route("/me", post(handlers::users::update_me))
@@ -74,8 +92,8 @@ pub fn create_router(state: AppState) -> Router {
         .nest("/auth", auth_routes)
         .nest("/users", user_routes)
         .nest("/admin", admin_routes)
-        
-        // 全局日志与 CORS
+
+        // --- 全局中间件：应用于所有路由的日志记录和跨域支持 ---
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
