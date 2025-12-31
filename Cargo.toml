@@ -1,0 +1,41 @@
+[package]
+name = "axum-best-practices"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# Web 框架：提供 HTTP 服务器、路由和中间件等核心 Web 功能。
+axum = "0.8.8"
+axum-extra = { version = "0.12.5", features = ["typed-header"] } # ✨ 新增：用于提取 Header，提供类型安全的 HTTP 头部处理。
+tokio = { version = "1.48.0", features = ["full"] }
+tower-http = { version = "0.6.8", features = ["cors", "trace"] }
+
+# 序列化与校验：提供 JSON 序列化/反序列化和数据验证功能。
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.148"
+validator = { version = "0.20.0", features = ["derive"] }
+
+# 数据库 (ORM)：提供 PostgreSQL 数据库连接和对象关系映射功能。
+sea-orm = { version = "1.1.19", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros"] }
+
+# 缓存：提供 Redis 缓存客户端和连接管理。
+redis = { version = "1.0.2", features = ["tokio-comp", "connection-manager"] } # 确保 redis 版本兼容：选择与当前 tokio 版本兼容的 redis 客户端版本。
+
+# 鉴权与加密：提供 JWT 令牌、密码哈希和密钥安全存储等功能。
+jsonwebtoken = { version = "10.2.0", features = ["rust_crypto"] }
+argon2 = "0.5.3"
+secrecy = { version = "0.10.3", features = ["serde"] } # ✨ 安全存储密钥：使用 secrecy 库安全地存储敏感信息，防止内存泄露。
+
+# 工具：提供配置管理、错误处理、日志记录、UUID 生成等辅助工具。
+config = "0.15.19"
+dotenvy = "0.15.7"
+thiserror = "2.0.17" # ✨ 声明式错误处理：使用 thiserror 库简化错误类型定义和处理。
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+tracing-appender = "0.2.4"
+uuid = { version = "1.19.0", features = ["v4", "serde"] }
+chrono = { version = "0.4.42", features = ["serde"] }
+regex = "1.12.2"
+strum = { version = "0.27.2", features = ["derive"] }
+rand = "0.8.5"
+async-trait = "0.1.89"

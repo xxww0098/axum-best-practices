@@ -1,0 +1,33 @@
+# Rust build artifacts
+/migration/target/
+/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo
+Cargo.lock
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+/logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Debug files
+debug/
