@@ -5,10 +5,10 @@ use validator::Validate;
 pub struct RegisterRequest {
     #[validate(length(min = 3, message = "Username must be at least 3 characters"))]
     pub username: String,
-    
+
     #[validate(length(min = 6, message = "Password must be at least 6 characters"))]
     pub password: String,
-    
+
     #[validate(regex(path = *crate::dtos::PHONE_REGEX, message = "Invalid phone format"))]
     pub phone: Option<String>,
 }

@@ -1,11 +1,10 @@
 // src/dtos/user.rs
-use crate::dtos::PHONE_REGEX;
 use crate::core::enums::UserRole;
-use serde::{Deserialize, Serialize}; // ✅ 引入 Deserialize
-use validator::Validate;
+use crate::dtos::PHONE_REGEX;
 use crate::entity::users;
+use serde::{Deserialize, Serialize};
+use validator::Validate;
 
-// ✅ 增加 Deserialize 和 Clone (Clone 用于缓存操作时的所有权转移)
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserProfile {
     pub id: String,

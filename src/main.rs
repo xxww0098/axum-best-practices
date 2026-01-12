@@ -11,7 +11,10 @@ mod start;
 mod state;
 mod utils;
 
+use anyhow::Result;
+
 #[tokio::main]
-async fn main() {
-    start::run().await;
+async fn main() -> Result<()> {
+    start::run().await?;
+    Ok(())
 }

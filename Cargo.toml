@@ -12,7 +12,7 @@ tower-http = { version = "0.6.8", features = ["cors", "trace"] }
 
 # 序列化与校验：提供 JSON 序列化/反序列化和数据验证功能。
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.148"
+serde_json = "1.0.149"
 validator = { version = "0.20.0", features = ["derive"] }
 
 # 数据库 (ORM)：提供 PostgreSQL 数据库连接和对象关系映射功能。
@@ -27,6 +27,7 @@ argon2 = "0.5.3"
 secrecy = { version = "0.10.3", features = ["serde"] } # ✨ 安全存储密钥：使用 secrecy 库安全地存储敏感信息，防止内存泄露。
 
 # 工具：提供配置管理、错误处理、日志记录、UUID 生成等辅助工具。
+anyhow = "1.0.100"
 config = "0.15.19"
 dotenvy = "0.15.7"
 thiserror = "2.0.17" # ✨ 声明式错误处理：使用 thiserror 库简化错误类型定义和处理。
@@ -38,4 +39,3 @@ chrono = { version = "0.4.42", features = ["serde"] }
 regex = "1.12.2"
 strum = { version = "0.27.2", features = ["derive"] }
 rand = "0.8.5"
-async-trait = "0.1.89"

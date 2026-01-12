@@ -1,13 +1,12 @@
-use sea_orm::DatabaseConnection;
-use redis::aio::ConnectionManager;
-use std::sync::Arc;
 use crate::core::config::Config;
+use redis::aio::ConnectionManager;
+use sea_orm::DatabaseConnection;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AppState {
     pub db: DatabaseConnection,
     pub redis: ConnectionManager,
-    /// 全局配置，使用 Arc 包装以实现廉价克隆
     pub config: Arc<Config>,
 }
 
